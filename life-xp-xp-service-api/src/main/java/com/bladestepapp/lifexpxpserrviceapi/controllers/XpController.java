@@ -1,8 +1,11 @@
 package com.bladestepapp.lifexpxpserrviceapi.controllers;
 
 import com.bladestepapp.api.XpApi;
-import com.bladestepapp.model.XpAddPost200Response;
-import com.bladestepapp.model.XpAddPostRequest;
+import com.bladestepapp.lifexpxpserrviceapi.mappers.XpMapper;
+import com.bladestepapp.lifexpxpservicecore.commands.AddXpForActivityCommand;
+import com.bladestepapp.lifexpxpservicecore.usecases.AddXpForActivityUseCase;
+import com.bladestepapp.model.AddXpForActivityRequest;
+import com.bladestepapp.model.AddXpForActivityResponseDto;
 import com.bladestepapp.model.XpHistoryUserIdGet200Response;
 import com.bladestepapp.model.XpLeaderboardGet200Response;
 import com.bladestepapp.model.XpResetPost200Response;
@@ -21,9 +24,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class XpController implements XpApi {
 
+    private final XpMapper xpMapper;
+
+    private final AddXpForActivityUseCase addXpForActivityUseCase;
+
     @Override
-    public ResponseEntity<XpAddPost200Response> xpAddPost(XpAddPostRequest xpAddPostRequest) {
-        return XpApi.super.xpAddPost(xpAddPostRequest);
+    public ResponseEntity<AddXpForActivityResponseDto> addXpForActivity(AddXpForActivityRequest addXpForActivityRequest) {
+        AddXpForActivityCommand command = xpMapper.map(addXpForActivityRequest);
+        Integer totalActivityXp = addXpForActivityUseCase.addXpForActivity(command);
+        AddXpForActivityResponseDto responseDto = new AddXpForActivityResponseDto().totalXp(totalActivityXp);
+        return ResponseEntity.ok(responseDto);
     }
 
     @Override
