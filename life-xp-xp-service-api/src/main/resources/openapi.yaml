@@ -1,126 +1,256 @@
-openapi: 3.0.1
+openapi: 3.0.0
 info:
-  title: User Service API
-  description: API для управления пользователями
+  title: XP Service API
+  description: API для начисления и получения опыта (XP) за выполненные активности.
   version: 1.0.0
 
-paths:
-  /users/{id}:
-    get:
-      summary: Получить данные пользователя
-      description: Возвращает информацию о пользователе по его UUID
-      operationId: getUserById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: UUID пользователя
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Успешный ответ
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/UserResponseDto"
-        "404":
-          description: Пользователь не найден
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
+servers:
+  - url: https://api.xp-tracker.com
+    description: Production server
+  - url: http://localhost:8080
+    description: Local development server
 
-  /users/create:
+paths:
+  /xp/add:
     post:
-      summary: Регистрация пользователя
-      description: Создаёт нового пользователя
-      operationId: createUser
+      summary: Добавить XP за выполненную активность
+      description: Начисляет XP пользователю за указанную активность.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateUserRequestDto"
+              type: object
+              required: [userId, activityId, hours]
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                activityId:
+                  type: string
+                  example: "activity-123"
+                hours:
+                  type: integer
+                  example: 2
       responses:
-        "201":
-          description: Пользователь успешно зарегистрирован
+        "200":
+          description: XP успешно начислен
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CreateUserResponseDto"
-        "400":
-          description: Некорректные данные
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "XP added successfully"
+                  totalXp:
+                    type: integer
+                    example: 100
+
+  /xp/{userId}:
+    get:
+      summary: Получить текущий баланс XP пользователя
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: Баланс XP пользователя
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                  totalXp:
+                    type: integer
+                    example: 1500
 
-components:
-  schemas:
-    UserDto:
-      type: object
-      required:
-        - id
-        - name
-        - email
-        - createdAt
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        email:
-          type: string
-          format: email
-        createdAt:
-          type: string
-          format: date-time
-          description: Дата создания пользователя (ISO 8601)
+  /xp/history/{userId}:
+    get:
+      summary: Получить историю начислений XP
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: История начислений XP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        activityId:
+                          type: string
+                          example: "activity-123"
+                        activityName:
+                          type: string
+                          example: "Running"
+                        xp:
+                          type: integer
+                          example: 50
+                        date:
+                          type: string
+                          format: date-time
+                          example: "2024-03-05T12:00:00Z"
 
-    CreateUserRequestDto:
-      type: object
-      required:
-        - name
-        - email
-      properties:
-        name:
-          type: string
-        email:
-          type: string
-          format: email
+  /xp/stats/{userId}:
+    get:
+      summary: Получить XP пользователя за период (по дням)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2024-03-01"
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          example: "2024-03-07"
+      responses:
+        "200":
+          description: XP пользователя по дням
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                  stats:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                          format: date
+                          example: "2024-03-01"
+                        xp:
+                          type: integer
+                          example: 40
 
-    ErrorResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        status:
-          type: integer
+  /xp/stats/{userId}/last/{days}:
+    get:
+      summary: Получить суммарное XP за последние N дней
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        - name: days
+          in: path
+          required: true
+          schema:
+            type: integer
+          example: 30
+      responses:
+        "200":
+          description: Суммарное XP за последние N дней
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    format: uuid
+                  totalXp:
+                    type: integer
+                    example: 1200
+                  averageXpPerDay:
+                    type: integer
+                    example: 40
 
-    UserResponseDto:
-      type: object
-      required:
-        - id
-        - name
-        - email
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        email:
-          type: string
-          format: email
+  /xp/leaderboard:
+    get:
+      summary: Получить топ пользователей по XP
+      responses:
+        "200":
+          description: Лидерборд пользователей по XP
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  leaderboard:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        userId:
+                          type: string
+                          format: uuid
+                        username:
+                          type: string
+                          example: "JohnDoe"
+                        totalXp:
+                          type: integer
+                          example: 5000
 
-    CreateUserResponseDto:
-      type: object
-      required:
-        - id
-      properties:
-        id:
-          type: string
-          format: uuid
+  /xp/reset:
+    post:
+      summary: Обнулить XP пользователя (сброс сезона)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: XP успешно сброшен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "XP reset successfully"
+                  totalXp:
+                    type: integer
+                    example: 0
