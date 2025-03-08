@@ -4,17 +4,18 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import java.util.Arrays;
 
 @SpringBootApplication(scanBasePackages = {"com.bladestepapp.lifexpxpservicemain","com.bladestepapp.lifexpxpserrviceapi",
         "com.bladestepapp.lifexpxpserviceapplication","com.bladestepapp.lifexpxpserviceinfrastructure"})
 @EnableCassandraRepositories(basePackages = "com.bladestepapp.lifexpxpserviceinfrastructure.repositories")
-@EntityScan(basePackages = "com.bladestepapp.lifexpuserserviceinfrastructure.entity")
+@EntityScan(basePackages = "com.bladestepapp.lifexpxpserviceinfrastructure.entities")
+@EnableFeignClients(basePackages = "com.bladestepapp.api")
 public class LifeXpXpServiceMainApplication {
 
     public static void main(String[] args) {
