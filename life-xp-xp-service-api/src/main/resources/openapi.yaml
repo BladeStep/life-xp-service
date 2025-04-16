@@ -15,7 +15,7 @@ paths:
     post:
       summary: Добавить XP за выполненную активность
       description: Начисляет XP пользователю за указанную активность.
-      operationId: addXpForActivity
+      operationId: createXpRecord
       requestBody:
         required: true
         content:
@@ -32,7 +32,7 @@ paths:
                   type: string
                   format: uuid
                   example: "123e4567-e89b-12d3-a456-426614174001"
-                hours:
+                unitCount:
                   type: integer
                   example: 2
       responses:
@@ -41,7 +41,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AddXpForActivityResponseDto"
+                $ref: "#/components/schemas/CreateXpRecordResponse"
   /xp/{userId}:
     get:
       summary: Получить текущий баланс XP пользователя
@@ -250,9 +250,12 @@ paths:
                     example: 0
 components:
   schemas:
-    AddXpForActivityResponseDto:
+    CreateXpRecordResponse:
       type: object
       properties:
-        totalXp:
+        dailyXpForCurrentActivity:
+          type: integer
+          example: 100
+        dailyXpByAllActivities:
           type: integer
           example: 100

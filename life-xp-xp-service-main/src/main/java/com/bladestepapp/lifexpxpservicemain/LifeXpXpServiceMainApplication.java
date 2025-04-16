@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 @SpringBootApplication(scanBasePackages = {"com.bladestepapp.lifexpxpservicemain","com.bladestepapp.lifexpxpserrviceapi",
         "com.bladestepapp.lifexpxpserviceapplication","com.bladestepapp.lifexpxpserviceinfrastructure"})
-@EnableCassandraRepositories(basePackages = "com.bladestepapp.lifexpxpserviceinfrastructure.repositories")
+@EnableCassandraRepositories(basePackages = "com.bladestepapp.lifexpxpserviceinfrastructure.persistence")
 @EntityScan(basePackages = "com.bladestepapp.lifexpxpserviceinfrastructure.entities")
 @EnableFeignClients(basePackages = "com.bladestepapp.api")
 public class LifeXpXpServiceMainApplication {
