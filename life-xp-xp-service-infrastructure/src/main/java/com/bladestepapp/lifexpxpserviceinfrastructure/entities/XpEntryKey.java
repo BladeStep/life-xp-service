@@ -7,6 +7,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyClass;
 import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @PrimaryKeyClass
@@ -20,9 +21,9 @@ public class XpEntryKey {
     private UUID activityId;
 
     @PrimaryKeyColumn(name = "created_at", ordinal = 2)
-    private Instant createdAt;
+    private LocalDate createdAt;
 
-    public XpEntryKey(UUID userId, UUID activityId, Instant createdAt) {
+    public XpEntryKey(UUID userId, UUID activityId, LocalDate createdAt) {
         this.userId = userId;
         this.activityId = activityId;
         this.createdAt = createdAt;

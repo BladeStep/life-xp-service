@@ -13,9 +13,9 @@ public class XpActivity {
 
     private UUID activityId;
 
-    private Integer xp;
+    private long xp;
 
-    public static XpActivity create(UUID userId, UUID activityId, Integer xp){
+    public static XpActivity create(UUID userId, UUID activityId, long xp){
         return XpActivity.builder()
                 .userId(userId)
                 .activityId(activityId)

@@ -20,7 +20,6 @@ public class ActivityHttpClientAdapter implements GetActivityPort {
 
     @Override
     public Optional<Activity> find(UUID id) {
-        return activityGateway.find(id)
-                .map(mapper::map);
+        return activityGateway.find(id).map(mapper::map);
     }
 }

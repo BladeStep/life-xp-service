@@ -4,7 +4,7 @@ import lombok.Data;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Table("xp_entries")
@@ -13,10 +13,10 @@ public class XpEntry {
 
     @PrimaryKey
     private XpEntryKey key;
-    private int xp;
+    private long xp;
 
-    public XpEntry(UUID userId, UUID activityId, int xp) {
-        this.key = new XpEntryKey(userId, activityId, Instant.now());
+    public XpEntry(UUID userId, UUID activityId, long xp) {
+        this.key = new XpEntryKey(userId, activityId, LocalDate.now());
         this.xp = xp;
     }
 }

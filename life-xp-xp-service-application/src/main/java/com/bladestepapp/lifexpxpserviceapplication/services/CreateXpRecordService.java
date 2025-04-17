@@ -8,7 +8,11 @@ import com.bladestepapp.lifexpxpservicecore.exception.UserNotFoundException;
 import com.bladestepapp.lifexpxpservicecore.model.CreateXpRecordResponseModel;
 import com.bladestepapp.lifexpxpservicecore.port.gateway.GetActivityPort;
 import com.bladestepapp.lifexpxpservicecore.port.gateway.GetUserPort;
-import com.bladestepapp.lifexpxpservicecore.port.persistence.*;
+import com.bladestepapp.lifexpxpservicecore.port.persistence.GetDailyUserXpPort;
+import com.bladestepapp.lifexpxpservicecore.port.persistence.GetTotalUserXpPort;
+import com.bladestepapp.lifexpxpservicecore.port.persistence.SaveDailyUserXpPort;
+import com.bladestepapp.lifexpxpservicecore.port.persistence.SaveTotalUserXpPort;
+import com.bladestepapp.lifexpxpservicecore.port.persistence.SaveXpActivityPort;
 import com.bladestepapp.lifexpxpservicecore.usecase.CreateXpRecordUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,19 +25,19 @@ import java.util.UUID;
 @Transactional
 public class CreateXpRecordService implements CreateXpRecordUseCase {
 
-    private final SaveXpActivityPort xpActivityPort;
-    private final GetDailyXpPort dailyXpPort;
-    private final SaveDailyXpPort saveDailyXpPort;
-    private final GetTotalXpPort totalXpPort;
-    private final SaveTotalXpPort saveTotalXpPort;
-    private final GetActivityPort activityPort;
-    private final GetUserPort userPort;
+    private final SaveXpActivityPort saveXpActivityPort;
+    private final GetDailyUserXpPort dailyUserXpPort;
+    private final SaveDailyUserXpPort saveDailyUserXpPort;
+    private final GetTotalUserXpPort totalUserXpPort;
+    private final SaveTotalUserXpPort saveTotalUserXpPort;
+    private final GetActivityPort getActivityPort;
+    private final GetUserPort getUserPort;
 
     @Override
     public CreateXpRecordResponseModel execute(CreateXpRecordCommand command) {
         validateUserAndActivity(command);
 
-        int xpGained = calculateXpGained(command);
+        long xpGained = calculateXpGained(command);
         XpActivity xpActivity = XpActivity.create(
                 command.getUserId(),
                 command.getActivityId(),
@@ -48,31 +52,31 @@ public class CreateXpRecordService implements CreateXpRecordUseCase {
         UUID activityId = command.getActivityId();
         UUID userId = command.getUserId();
 
-        activityPort.find(activityId)
+        getActivityPort.find(activityId)
                 .orElseThrow(() -> new ActivityNotFoundException("Activity with id " + activityId + " not found"));
 
-        userPort.find(userId)
+        getUserPort.find(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
     }
 
-    private int calculateXpGained(CreateXpRecordCommand command) {
-        Activity activity = activityPort.find(command.getActivityId()).orElseThrow();
-        return (int) (command.getUnitCount() * activity.getBaseXp());
+    private long calculateXpGained(CreateXpRecordCommand command) {
+        Activity activity = getActivityPort.find(command.getActivityId()).orElseThrow();
+        return (long) (command.getUnitCount() * activity.getBaseXp());
     }
 
-    private void saveXpRecords(UUID userId, int xpGained, XpActivity xpActivity) {
-        xpActivityPort.save(xpActivity);
+    private void saveXpRecords(UUID userId, long xpGained, XpActivity xpActivity) {
+        saveXpActivityPort.save(xpActivity);
 
-        int newDailyXp = dailyXpPort.get(userId) + xpGained;
-        saveDailyXpPort.save(userId, newDailyXp);
+        long newDailyXp = dailyUserXpPort.getForToday(userId) + xpGained;
+        saveDailyUserXpPort.saveForToday(userId, newDailyXp);
 
-        int newTotalXp = totalXpPort.get(userId) + xpGained;
-        saveTotalXpPort.save(userId, newTotalXp);
+        long newTotalXp = totalUserXpPort.get(userId) + xpGained;
+        saveTotalUserXpPort.save(userId, newTotalXp);
     }
 
     private CreateXpRecordResponseModel buildResponse(UUID userId) {
-        int currentDailyXp = dailyXpPort.get(userId);
-        int currentTotalXp = totalXpPort.get(userId);
+        long currentDailyXp = dailyUserXpPort.getForToday(userId);
+        long currentTotalXp = totalUserXpPort.get(userId);
         return new CreateXpRecordResponseModel(currentDailyXp, currentTotalXp);
     }
 }

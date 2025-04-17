@@ -1,15 +1,17 @@
 package com.bladestepapp.lifexpxpserviceinfrastructure.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-@Table("user_xp_daily")
+@Table("daily_user_xp")
 @Data
-public class UserXpDailyEntry {
+@AllArgsConstructor
+public class DailyUserXpEntry {
 
     @PrimaryKey
-    private UserXpDailyEntryKey key;
+    private DailyUserXpEntryKey key;
 
-    private int dailyXp;
+    private long dailyXp;
 }

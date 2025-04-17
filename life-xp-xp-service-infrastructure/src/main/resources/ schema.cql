@@ -7,13 +7,13 @@ CREATE TABLE IF NOT EXISTS xp_history (
     ) WITH CLUSTERING ORDER BY (created_at DESC);
 
 CREATE TABLE user_xp_daily (
-                               userId UUID,
+                               user_id UUID,
                                date DATE,
-                               dailyXp INT,
+                               daily_xp INT,
                                PRIMARY KEY (userId, date)
 ) WITH CLUSTERING ORDER BY (date DESC);
 
 CREATE TABLE user_xp_total (
-                               userId UUID PRIMARY KEY,
-                               totalXp INT
+                               user_id UUID PRIMARY KEY,
+                               total_xp INT
 );

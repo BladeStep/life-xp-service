@@ -5,8 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 
 @FeignClient(
         name = "activity-service",
-        url = "${activity-service.base-url}",
-        path = "/api"
+        url = "${activity-service.url}"
 )
 public interface ActivityQueryClient extends ActivityQueryApi {
 }

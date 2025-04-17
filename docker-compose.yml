@@ -1,15 +1,29 @@
-version: '3.7'
+version: '3.8'
+
 services:
   cassandra:
-    image: cassandra:latest
+    image: cassandra:4.1
     container_name: cassandra
     ports:
       - "9042:9042"
-    environment:
-      - CASSANDRA_START_RPC=true
-      - MAX_HEAP_SIZE=512M
-      - HEAP_NEWSIZE=100M
     volumes:
       - cassandra_data:/var/lib/cassandra
+    environment:
+      - CASSANDRA_CLUSTER_NAME=xp_cluster
+      - CASSANDRA_DC=datacenter1
+    healthcheck:
+      test: ["CMD-SHELL", "cqlsh -u cassandra -p cassandra -e 'describe keyspaces'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  cassandra-init:
+    image: cassandra:4.1
+    depends_on:
+      - cassandra
+    volumes:
+      - ./init.cql:/init.cql
+    entrypoint: [ "sh", "-c", "sleep 20 && cqlsh cassandra -f /init.cql" ]
+
 volumes:
   cassandra_data:

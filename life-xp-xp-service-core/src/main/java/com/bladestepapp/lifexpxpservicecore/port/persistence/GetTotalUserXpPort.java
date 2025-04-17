@@ -2,7 +2,7 @@ package com.bladestepapp.lifexpxpservicecore.port.persistence;
 
 import java.util.UUID;
 
-public interface SaveDailyXpPort {
+public interface GetTotalUserXpPort {
 
-    void save(UUID userId, int xpAmount);
+    long get(UUID userId);
 }

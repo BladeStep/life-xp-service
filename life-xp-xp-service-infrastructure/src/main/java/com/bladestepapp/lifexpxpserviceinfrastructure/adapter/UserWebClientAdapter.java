@@ -1,7 +1,7 @@
 package com.bladestepapp.lifexpxpserviceinfrastructure.adapter;
 
-import com.bladestepapp.lifexpactivityservicecore.domain.User;
-import com.bladestepapp.lifexpactivityservicecore.gateway.GetUserPort;
+import com.bladestepapp.lifexpxpservicecore.domain.User;
+import com.bladestepapp.lifexpxpservicecore.port.gateway.GetUserPort;
 import com.bladestepapp.lifexpxpserviceinfrastructure.gateway.UserGateway;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

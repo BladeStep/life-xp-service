@@ -1,5 +1,6 @@
 package com.bladestepapp.lifexpxpserviceinfrastructure.gateway;
 
+import com.bladestepapp.lifexpxpservicecore.exception.ExternalServiceException;
 import com.bladestepapp.lifexpxpserviceinfrastructure.gateway.model.UserResponseModel;
 import com.bladestepapp.lifexpxpserviceinfrastructure.http.properties.UserServiceProperties;
 import com.bladestepapp.model.MonoUserResponseDto;
@@ -10,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,13 +20,13 @@ import java.util.UUID;
 @Slf4j
 public class UserGateway {
 
-    private final WebClient client;
+    private final WebClient userWebClient;
 
     private final UserServiceProperties userServiceProperties;
 
     public Optional<UserResponseModel> find(UUID id) {
         try {
-            ResponseEntity<MonoUserResponseDto> responseEntity = client.get()
+            ResponseEntity<MonoUserResponseDto> responseEntity = userWebClient.get()
                     .uri(userServiceProperties.getUserPath(), id)
                     .retrieve()
                     .toEntity(MonoUserResponseDto.class)
@@ -51,17 +51,9 @@ public class UserGateway {
             log.warn("User not found. ID: {}, Response: {}", id, e.getResponseBodyAsString());
             return Optional.empty();
         } catch (WebClientResponseException e) {
-            throw new ResponseStatusException(
-                    e.getStatusCode(),
-                    "User service error: " + e.getResponseBodyAsString(),
-                    e
-            );
+            throw new ExternalServiceException("user-service", e.getStatusCode().value(), "User service error: " + e.getResponseBodyAsString(), e);
         } catch (RuntimeException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Failed to call user service",
-                    e
-            );
+            throw new ExternalServiceException("user-service", HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to call user service", e);
         }
     }
 }

@@ -7,7 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class CreateXpRecordResponseModel {
 
-    private Integer dailyXpForCurrentActivity;
+    private long dailyXpForCurrentActivity;
 
-    private Integer dailyXpByAllActivities;
+    private long dailyXpByAllActivities;
 }
